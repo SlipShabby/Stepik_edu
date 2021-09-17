@@ -26,3 +26,19 @@ Boring
 
 '''
 
+import requests
+import json
+
+params = {'default': 'Boring number is boring', 'json': True}
+
+with open('dataset_24476_3-4.txt') as file:
+    for number in file:
+        number = number.strip()
+        url = 'http://numbersapi.com/{}/math'.format(number)
+        res = requests.get(url, params=params).text
+        data = json.loads(res)
+        if 'Boring' in data['text']:
+            print('Boring')
+        else:
+            print('Interesting')
+
