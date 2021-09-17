@@ -63,3 +63,31 @@ Abbas Hamra
 При открытии файла для записи на Windows по умолчанию используется кодировка CP1251, в то время как для записи имен на сайте используется кодировка UTF-8, что может привести к ошибке при попытке записать в файл имя с необычными символами. Вы можете использовать print, или аргумент encoding функции open.
 '''
 
+import json
+import requests
+from requests.api import request
+from requests.exceptions import URLRequired
+
+client_id = 'a6d482c88583146e2812'
+client_secret = '14ca002c9c201f8e94c82854afc32552'
+
+res = requests.post("https://api.artsy.net/api/tokens/xapp_token",
+                  data={
+                      "client_id": client_id,
+                      "client_secret": client_secret
+                  })
+token = json.loads(res.text)["token"]
+
+artists = []
+
+with open('dataset_24476_4-3.txt') as file:
+    for artist_id in file:
+        artist_id = artist_id.strip()
+        url = 'https://api.artsy.net/api/artists/{}'.format(artist_id)
+        params = {'xapp_token': token}
+        resp = requests.get(url, params=params).text
+        data = json.loads(resp)
+        artists.append({'name': data['sortable_name'], 'birthday': data['birthday']})
+
+for artist in sorted(artists, key=lambda x: (x['birthday'], x['name'])):
+    print(artist['name'], artist['birthday'])
